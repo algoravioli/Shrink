@@ -1,6 +1,8 @@
-### Modeling y = tanh(2x)
+## Modeling y = tanh(2x)
 ### Satisficing equation
 ![Satisficing equation](./images/satisficing.png)
+
+### Results
 Top 10 architectures with the lowest losses:
 1. N = 4, M = 28, Loss = 6.347e-05, Score = 28
 2. N = 4, M = 29, Loss = 3.147e-04, Score = 32
