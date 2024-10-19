@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 # Global macros
-VERBOSE = True
+VERBOSE = False
 SAMPLE_COUNT = 100
 TRAIN = False
 
