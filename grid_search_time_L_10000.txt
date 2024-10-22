@@ -1,0 +1,1 @@
+Time taken for grid search, for 10000 samples per sine wave * 10: 105705.32081103325 seconds

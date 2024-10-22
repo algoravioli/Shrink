@@ -73,9 +73,13 @@ def plotResultsFromGridSearch(results, top_n=10):
     plt.ylabel("Number of Neurons per Layer (M)")
     plt.title("Logarithmic Loss Values for Different Architectures")
 
-    # Set x and y ticks to be integers based on the range of N and M values
-    plt.xticks(np.arange(min(N_values), max(N_values) + 1, 1))  # Integer x-ticks
-    plt.yticks(np.arange(min(M_values), max(M_values) + 1, 1))  # Integer y-ticks
+    # Set x and y ticks to be multiples of 5
+    plt.xticks(
+        np.arange(min(N_values), max(N_values) + 1, 5)
+    )  # Multiples of 5 for x-ticks
+    plt.yticks(
+        np.arange(min(M_values), max(M_values) + 1, 5)
+    )  # Multiples of 5 for y-ticks
 
     # Show the plot
     plt.show()

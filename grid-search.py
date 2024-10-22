@@ -8,6 +8,7 @@
 # First we create a dataset of samples
 # These will consist of SAMPLE_COUNT samples long sine waves with random frequency and phase concatenated together
 
+import sys
 import pickle
 import numpy as np
 import torch
@@ -17,13 +18,18 @@ from tqdm import tqdm
 
 # Global macros
 VERBOSE = False
-SAMPLE_COUNT = 100
-TRAIN = False
+SAMPLE_COUNT = 10000  # Change between 100 and 10000
+TRAIN = True
 
 # Refer to generators.py for the code that generates the dataset
 # Assuming `generateTanh2xDataset` is provided
-from generators import generateTanh2xDataset
+from generators import generateTanh2xDataset, set_seed
 from plotters import plotResultsFromGridSearch
+
+# Set a seed for reproducibility
+# Feel free to set the seeds differently..
+# So far, I have not been able to produce different results based on seed
+set_seed(69420)
 
 # Generate the dataset
 x_data, y_data = generateTanh2xDataset(VERBOSE, SAMPLE_COUNT)
@@ -46,10 +52,10 @@ y_test = torch.tensor(y_test, dtype=torch.float32)
 
 # Dataset loader
 train_data = torch.utils.data.TensorDataset(x_train, y_train)
-train_loader = torch.utils.data.DataLoader(train_data, batch_size=1000, shuffle=False)
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=10000, shuffle=False)
 
 test_data = torch.utils.data.TensorDataset(x_test, y_test)
-test_loader = torch.utils.data.DataLoader(test_data, batch_size=1000, shuffle=False)
+test_loader = torch.utils.data.DataLoader(test_data, batch_size=10000, shuffle=False)
 
 
 # Define the grid search model creator
@@ -105,9 +111,14 @@ def trainModel(model, train_loader, test_loader, epochs=100, learning_rate=0.001
     return test_loss
 
 
+# Record the time taken for grid search
+import time
+
+start_time = time.time()
+
 # Perform grid search with valid N and M values
-maxM = 30
-maxN = 30
+maxM = 50
+maxN = 50
 bestModel = None
 bestLoss = float("inf")
 bestN = 0
@@ -117,8 +128,8 @@ results = []
 counter = 0
 if TRAIN:
     # Ensure N and M are >= 1 to avoid invalid model creation
-    for N in range(1, maxM + 1):  # N starts from 1
-        for M in range(1, maxN + 1):  # M starts from 1
+    for N in range(1, maxN + 1):  # N starts from 1
+        for M in range(1, maxM + 1):  # M starts from 1
             model = createModel(N, M)
             loss = trainModel(
                 model, train_loader, test_loader, epochs=100, learning_rate=0.001
@@ -134,18 +145,25 @@ if TRAIN:
                 bestN = N
                 bestM = M
             counter += 1
-            print(f"{counter} models of {maxM * maxN} trained")
+            print(f"{counter} models of {maxM * maxN} trained", end="\r")
+            sys.stdout.flush()
 
     # After the loop, all architectures and their losses are stored in `results`
     print("Best model has N =", bestN, "and M =", bestM, "with loss", bestLoss)
 
     # Save results to a file
-    with open("grid_search_results.pkl", "wb") as f:
+    with open(f"grid_search_results_L{SAMPLE_COUNT}.pkl", "wb") as f:
         pickle.dump(results, f)
 
+end_time = time.time()
+print("Time taken for grid search:", end_time - start_time, "seconds")
+with open(f"grid_search_time_L_{SAMPLE_COUNT}.txt", "w") as f:
+    f.write(
+        f"Time taken for grid search, for {SAMPLE_COUNT} samples per sine wave * 10: {str(end_time - start_time)} seconds"
+    )
 
 # Load results from the file
-with open("grid_search_results.pkl", "rb") as f:
+with open(f"grid_search_results_L{SAMPLE_COUNT}.pkl", "rb") as f:
     results = pickle.load(f)
 
 # Plot the results
