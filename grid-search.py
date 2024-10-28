@@ -14,6 +14,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import scipy.io.wavfile as wav
 from tqdm import tqdm
 
 # Global macros
@@ -34,6 +35,18 @@ set_seed(69420)
 # Generate the dataset
 x_data, y_data = generateTanh2xDataset(VERBOSE, SAMPLE_COUNT)
 
+# Export x_data and y_data as wav files
+x_wav = "x_data.wav"
+y_wav = "y_data.wav"
+# Define the sample rate for the audio file
+sample_rate = 48000
+# Normalize data to the range -1 to 1 for audio
+x_data_normalized = np.clip(x_data / np.max(np.abs(x_data)), -1, 1)
+y_data_normalized = np.clip(y_data / np.max(np.abs(y_data)), -1, 1)
+# Export x_data and y_data as wav files
+wav.write("x_data.wav", sample_rate, x_data_normalized.astype(np.float32))
+wav.write("y_data.wav", sample_rate, y_data_normalized.astype(np.float32))
+# %%
 # Get x_train, x_test, y_train, y_test via 80:20 split
 split = 0.8
 splitIndex = int(len(x_data) * split)
